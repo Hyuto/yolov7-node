@@ -1,14 +1,24 @@
 {
   "name": "yolov7-node",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "start": "nodemon --watch src index.js"
+  },
+  "author": {
+    "name": "Wahyu Setianto",
+    "url": "https://github.com/Hyuto"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hyuto/yolov7-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hyuto/yolov7-node/issues"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "express-ws": "^5.0.2",
     "onnxruntime-node": "^1.13.1",
     "socket.io": "^4.5.3"
   },

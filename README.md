@@ -3,5 +3,5 @@
 **Run the Application**
 
 ```bash
-yarn dev
+yarn start
 ```

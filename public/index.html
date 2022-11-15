@@ -1,64 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Test App</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./opencv-4.5.5.js" type="text/javascript"></script>
-    <script>
-      window.opencvReady = false;
-      cv["onRuntimeInitialized"] = () => {
-        window.opencvReady = true;
-      };
-    </script>
-    <style>
-      * {
-        padding: 0;
-        margin: 0;
-      }
-
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YOLOv7 on Node.js</title>
+    <script src="./js/socket.io.min.js"></script>
+    <script src="./js/opencv-4.5.5.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" type="image/x-icon" href="/icon.png" />
   </head>
   <body>
-    <div
-      style="
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-      "
-    >
-      <div id="videoContainer" style="display: none; position: relative">
-        <video id="videoInput" width="640" height="480" style="display: none" muted></video>
-        <video id="cameraInput" width="640" height="480" style="display: none" muted></video>
-        <canvas
-          id="canvas"
-          width="320"
-          height="320"
-          style="position: absolute; width: 100%; height: 100%; top: 0; left: 0"
-        ></canvas>
+    <div class="app">
+      <div id="loading">
+        <div class="lds-ripple">
+          <div></div>
+          <div></div>
+        </div>
+        <p class="text">Loading <code>opencv.js</code> ...</p>
       </div>
-      <div style="display: flex">
+      <div class="header">
+        <h1>📷 YOLOv7 Live Detection App!</h1>
+        <p>YOLOv7 Live Detection Application on Node.js</p>
+      </div>
+      <div id="videoContainer" style="display: none">
+        <video id="videoInput" style="display: none" autoplay muted></video>
+        <video id="cameraInput" style="display: none" autoplay muted></video>
+        <canvas id="canvas" width="640" height="640"></canvas>
+      </div>
+      <div>
         <input id="inputVideo" type="file" accept="video/*" style="display: none" />
-        <button id="vidButton" onclick="inputVideo.click()" style="padding: 5px; margin: 5px">
-          Open Video
-        </button>
-        <button id="webcamButton" onclick="openCamera()" style="padding: 5px; margin: 5px">
-          Open Webcam
-        </button>
-        <button onclick="closeVid()" style="padding: 5px; margin: 5px">Close</button>
+        <button id="vidButton" onclick="inputVideo.click()" class="btn">Open Video</button>
+        <button id="webcamButton" class="btn">Open Webcam</button>
       </div>
     </div>
 
-    <script src="./App.js" type="text/javascript"></script>
+    <script>
+      cv["onRuntimeInitialized"] = async () => {
+        await new Promise((r) => setTimeout(r, 1500));
+        document.getElementById("loading").style.display = "none";
+      };
+    </script>
+    <script src="./js/App.js" type="module"></script>
   </body>
 </html>
