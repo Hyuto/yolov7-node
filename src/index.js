@@ -4,12 +4,22 @@ const express = require("express");
 const { Server } = require("socket.io");
 const ort = require("onnxruntime-node");
 
-let session;
+// model configs
+const modelInfo = {
+  name: "yolov7-tiny.onnx",
+  inputShape: [1, 3, 640, 640],
+};
+
+let session; // onnxruntime session
 (async () => {
-  session = await ort.InferenceSession.create(path.join(__dirname, "yolov7-tiny.onnx"));
+  session = await ort.InferenceSession.create(path.join(__dirname, modelInfo.name)); // load model
 
   // warmup model
-  const tensor = new ort.Tensor("float32", new Float32Array(1228800), [1, 3, 640, 640]);
+  const tensor = new ort.Tensor(
+    "float32",
+    new Float32Array(modelInfo.inputShape.reduce((a, b) => a * b)),
+    modelInfo.inputShape
+  );
   await session.run({ images: tensor });
   console.log(session);
 })();
@@ -29,7 +39,7 @@ app.get("/", (req, res) => {
 
 const detect = async (frame) => {
   const input = new Float32Array(frame.buffer);
-  const tensor = new ort.Tensor("float32", input, [1, 3, 640, 640]); // to ort.Tensor
+  const tensor = new ort.Tensor("float32", input, modelInfo.inputShape); // to ort.Tensor
   const { output } = await session.run({ images: tensor }); // run session and get output layer
   const boxes = [];
 
@@ -49,13 +59,16 @@ const detect = async (frame) => {
 };
 
 io.on("connection", (socket) => {
+  socket.emit("model-env", modelInfo); // send model information
+
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
 
+  // get image array from frontend and do detection
   socket.on("videoframe", async (frame, callback) => {
     const boxes = await detect(frame);
-    callback(boxes);
+    callback(boxes); // send boxes to frontend
   });
 });
 

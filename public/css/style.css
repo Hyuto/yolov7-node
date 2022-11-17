@@ -25,6 +25,13 @@ body {
   text-align: center;
 }
 
+code {
+  padding: 5px;
+  color: greenyellow;
+  background-color: black;
+  border-radius: 5px;
+}
+
 #videoContainer {
   position: relative;
   width: 100%;
@@ -46,6 +53,10 @@ body {
   left: 0;
   margin: 0;
   padding: 0;
+}
+
+.btn-container {
+  margin: 5px 0;
 }
 
 .btn {
@@ -77,13 +88,6 @@ body {
 #loading .text {
   margin-top: 10px;
   font-size: large;
-}
-
-#loading .text code {
-  padding: 5px;
-  color: greenyellow;
-  background-color: black;
-  border-radius: 5px;
 }
 
 .lds-ripple {

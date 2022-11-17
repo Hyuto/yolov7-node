@@ -22,13 +22,14 @@
       <div class="header">
         <h1>📷 YOLOv7 Live Detection App!</h1>
         <p>YOLOv7 Live Detection Application on Node.js</p>
+        <p>Serving : <code id="modelName"></code></p>
       </div>
       <div id="videoContainer" style="display: none">
         <video id="videoInput" style="display: none" autoplay muted></video>
         <video id="cameraInput" style="display: none" autoplay muted></video>
-        <canvas id="canvas" width="640" height="640"></canvas>
+        <canvas id="canvas"></canvas>
       </div>
-      <div>
+      <div class="btn-container">
         <input id="inputVideo" type="file" accept="video/*" style="display: none" />
         <button id="vidButton" onclick="inputVideo.click()" class="btn">Open Video</button>
         <button id="webcamButton" class="btn">Open Webcam</button>

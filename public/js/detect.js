@@ -2,11 +2,11 @@ import { renderBoxes } from "./utils.js";
 
 /**
  * Do detection process to show boxes in canvas
- * WARNING: this function really depended on global streaming state
+ * WARNING: this function really depended on global streaming state and modelInputShape
  */
 export const detect = (src, canvas, socket) => {
   const ctx = canvas.getContext("2d");
-  const [modelWidth, modelHeight] = [640, 640];
+  const [modelWidth, modelHeight] = window.modelInputShape.slice(2, 4); // get model input width and height
 
   const cap = new cv.VideoCapture(src); // capture video
   const mat = new cv.Mat(src.height, src.width, cv.CV_8UC4); // original frame
@@ -37,7 +37,7 @@ export const detect = (src, canvas, socket) => {
         socket.emit("videoframe", array, (boxes) => {
           resolve(boxes);
         });
-      });
+      }); // send image array to backend and await response (boxes)
       renderBoxes(boxes, ctx); // render boxes
       input.delete(); // clean memory
 
