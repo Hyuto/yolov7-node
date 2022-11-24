@@ -16,8 +16,8 @@ Serving YOLOv7 in Node.js using `onnxruntime-node`.
 ## Setup
 
 ```bash
-git clone https://github.com/Hyuto/yolov7-onnxruntime-web.git
-cd yolov7-onnxruntime-web
+git clone https://github.com/Hyuto/yolov7-node.git
+cd yolov7-node
 yarn install # Install dependencies
 ```
 
