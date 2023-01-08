@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-const detect = async (frame) => {
+const detect = async (frame, xRatio, yRatio) => {
   const input = new Float32Array(frame.buffer);
   const tensor = new ort.Tensor("float32", input, modelInfo.inputShape); // to ort.Tensor
   const { output } = await session.run({ images: tensor }); // run session and get output layer
@@ -52,7 +52,7 @@ const detect = async (frame) => {
     boxes.push({
       classId: classId,
       probability: score,
-      bounding: [x0, y0, w, h],
+      bounding: [x0 * xRatio, y0 * yRatio, w * xRatio, h * yRatio],
     });
   }
   return boxes;
@@ -66,8 +66,8 @@ io.on("connection", (socket) => {
   });
 
   // get image array from frontend and do detection
-  socket.on("videoframe", async (frame, callback) => {
-    const boxes = await detect(frame);
+  socket.on("videoframe", async (frame, xRatio, yRatio, callback) => {
+    const boxes = await detect(frame, xRatio, yRatio);
     callback(boxes); // send boxes to frontend
   });
 });

@@ -3,6 +3,9 @@ import { renderBoxes } from "./utils.js";
 /**
  * Do detection process to show boxes in canvas
  * WARNING: this function really depended on global streaming state and modelInputShape
+ * @param {HTMLImageElement|HTMLVideoElement} src Image to detect
+ * @param {HTMLCanvasElement} canvas canvas to draw boxes
+ * @param {any} socket socket.io object
  */
 export const detect = (src, canvas, socket) => {
   const ctx = canvas.getContext("2d");
@@ -10,7 +13,7 @@ export const detect = (src, canvas, socket) => {
 
   const cap = new cv.VideoCapture(src); // capture video
   const mat = new cv.Mat(src.height, src.width, cv.CV_8UC4); // original frame
-  const matC3 = new cv.Mat(modelWidth, modelHeight, cv.CV_8UC3); // resize to new image matrix
+  const matC3 = new cv.Mat(src.height, src.width, cv.CV_8UC3); // resize to new image matrix
 
   const processVideo = async () => {
     try {
@@ -24,17 +27,28 @@ export const detect = (src, canvas, socket) => {
       // start processing.
       cap.read(mat); // read video frame
       cv.cvtColor(mat, matC3, cv.COLOR_RGBA2BGR); // RGBA to BGR
+
+      // padding image to [n x n] dim
+      const maxSize = Math.max(matC3.rows, matC3.cols); // get max size from width and height
+      const xPad = maxSize - matC3.cols, // set xPadding
+        xRatio = maxSize / matC3.cols; // set xRatio
+      const yPad = maxSize - matC3.rows, // set yPadding
+        yRatio = maxSize / matC3.rows; // set yRatio
+      const matPad = new cv.Mat(); // new mat for padded image
+      cv.copyMakeBorder(matC3, matPad, 0, yPad, 0, xPad, cv.BORDER_CONSTANT, [0, 0, 0, 255]); // padding black
+
       const input = cv.blobFromImage(
-        matC3,
+        matPad,
         1 / 255.0,
         new cv.Size(modelWidth, modelHeight),
         new cv.Scalar(0, 0, 0),
         true,
         false
-      ); // preprocessing image matrix to blob
+      ); // preprocessing image matrix
+
       const array = input.data32F.slice(); // image array
       const boxes = await new Promise((resolve) => {
-        socket.emit("videoframe", array, (boxes) => {
+        socket.emit("videoframe", array, xRatio, yRatio, (boxes) => {
           resolve(boxes);
         });
       }); // send image array to backend and await response (boxes)
