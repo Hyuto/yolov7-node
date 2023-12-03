@@ -8,12 +8,17 @@ import { renderBoxes } from "./utils.js";
  * @param {any} socket socket.io object
  */
 export const detect = (src, canvas, socket) => {
+  canvas.width = src.width;
+  canvas.height = src.height;
+
   const ctx = canvas.getContext("2d");
   const [modelWidth, modelHeight] = window.modelInputShape.slice(2, 4); // get model input width and height
 
   const cap = new cv.VideoCapture(src); // capture video
   const mat = new cv.Mat(src.height, src.width, cv.CV_8UC4); // original frame
   const matC3 = new cv.Mat(src.height, src.width, cv.CV_8UC3); // resize to new image matrix
+
+  let firstFrame = true;
 
   const processVideo = async () => {
     try {
@@ -24,8 +29,15 @@ export const detect = (src, canvas, socket) => {
         matC3.delete();
         return;
       }
-      // start processing.
       cap.read(mat); // read video frame
+
+      if (firstFrame) {
+        // render first frame to handle if model takes long time on process
+        cv.imshow("canvas", mat);
+        firstFrame = false;
+      }
+
+      // start processing.
       cv.cvtColor(mat, matC3, cv.COLOR_RGBA2BGR); // RGBA to BGR
 
       // padding image to [n x n] dim
@@ -35,7 +47,7 @@ export const detect = (src, canvas, socket) => {
       const yPad = maxSize - matC3.rows, // set yPadding
         yRatio = maxSize / matC3.rows; // set yRatio
       const matPad = new cv.Mat(); // new mat for padded image
-      cv.copyMakeBorder(matC3, matPad, 0, yPad, 0, xPad, cv.BORDER_CONSTANT, [0, 0, 0, 255]); // padding black
+      cv.copyMakeBorder(matC3, matPad, 0, yPad, 0, xPad, cv.BORDER_CONSTANT); // padding black
 
       const input = cv.blobFromImage(
         matPad,
@@ -52,8 +64,13 @@ export const detect = (src, canvas, socket) => {
           resolve(boxes);
         });
       }); // send image array to backend and await response (boxes)
+
+      cv.imshow("canvas", mat); // render frame
       renderBoxes(boxes, ctx); // render boxes
-      input.delete(); // clean memory
+
+      // clean memory
+      input.delete();
+      matPad.delete();
 
       requestAnimationFrame(processVideo); // request next frame
     } catch (err) {

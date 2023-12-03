@@ -4,8 +4,6 @@
  * @param {CanvasRenderingContext2D} ctx canvas rendering context
  */
 export const renderBoxes = (boxes, ctx) => {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
-
   const colors = new Colors();
 
   // font configs
